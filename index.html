@@ -1,1 +1,524 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>スタンプ取得</title>
 
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+<style>
+body{
+  font-family:sans-serif;
+  text-align:center;
+  padding:20px;
+  background:#f5f5f5;
+}
+
+.card{
+  background:white;
+  border-radius:12px;
+  padding:20px;
+  max-width:400px;
+  margin:auto;
+}
+
+.stamp{
+  display:flex;
+  align-items:center;
+  margin:10px 0;
+  padding:10px;
+  border:1px solid #ddd;
+  border-radius:10px;
+}
+
+.stamp img{
+  width: 60px;
+  height:60px;
+  margin-right:10px;
+}
+
+button{
+  margin-top:20px;
+  padding:15px 30px;
+  border:none;
+  border-radius:10px;
+  background:#06C755;
+  color:white;
+  font-size:16px;
+}
+</style>
+</head>
+
+<body>
+<div id="loading" style="
+padding-top:120px;
+font-size:24px;
+font-weight:bold;
+">
+読み込み中<span id="dots">.</span>
+</div>
+  
+<!-- <div class="card"> -->
+<div class="card" id="mainCard" style="display:none;">
+  
+<h2 id="title">読み込み中...</h2>
+
+<div id="stampArea"></div>
+
+<canvas id="stampBook"
+width="1492"
+height="1054"
+style="
+width:100%;
+height:auto;
+margin-top:20px;
+background:white;
+border-radius:12px;
+"></canvas>
+
+<p id="status"></p>
+
+<button id="btn" disabled style="display:none;">
+スタンプを取得！
+</button>
+
+</div>
+
+<script>
+// ローディングアニメ
+setInterval(()=>{
+
+  const dots =
+    document.getElementById("dots");
+
+  if(!dots) return;
+
+  if(dots.innerText === "."){
+    dots.innerText = "..";
+  }else if(dots.innerText === ".."){
+    dots.innerText = "...";
+  }else{
+    dots.innerText = ".";
+  }
+
+},400);
+
+  
+const LIFF_ID = "2010010965-sP88JhBz";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzHKAMu-EH4zXBFSzd0CPNjoe5JS5fe7fM3_ZkG05rwBn8YRbAdgTTjXvVB97PqK7yd4g/exec";
+
+let userId = "";
+let spot = "";
+let sub = "";
+let stamps = [];
+let allGenres = [];
+  
+const stampPositions = {
+
+  kids:[50,260],
+  edu:[250,260],
+  welfare_dis:[450,260],
+  welfare_old:[650,260],
+  health:[845,260],
+  global:[1045,260],
+  env:[1245,260],
+
+  animal:[50,480],
+  culture:[250,480],
+  sports:[450,480],
+  disaster:[650,480],
+  community:[845,480],
+  event:[1045,480],
+  rights:[1245,480],
+
+  studytour:[50,687],
+  online:[250,687],
+  seminar:[450,687],
+  donation:[650,687],
+  kgvnet:[845,687],
+  sdgs:[1045,687],
+  other:[1245,687]
+
+};
+
+
+  
+function getParam(name){
+  return new URL(location.href).searchParams.get(name);
+}
+
+async function init(){
+
+  // URLからspot取得
+spot = getParam("spot");
+
+// 取得できたら保存
+if(spot){
+  sessionStorage.setItem("spot", spot);
+}
+
+// 消えてたら保存済みを使う
+if(!spot){
+  spot = sessionStorage.getItem("spot");
+}
+
+console.log("① spot:", spot);
+  console.log("① spot:", spot);
+  
+  await liff.init({
+    liffId: LIFF_ID
+  });
+
+  if(!liff.isLoggedIn()){
+    liff.login();
+    return;
+  }
+
+  // 👇ここ追加
+  const profile = await liff.getProfile();
+  userId = profile.userId;
+
+  const idToken = liff.getIDToken();
+
+try {
+  if(idToken){
+    const payload = JSON.parse(atob(idToken.split('.')[1]));
+    sub = payload.sub || "";
+  } else {
+    sub = "";
+  }
+} catch(e) {
+  console.log("sub取得エラー:", e);
+  sub = "";
+}
+  
+  console.log("userId:", userId);
+  console.log("sub:", sub);
+  
+
+  // スタンプ情報取得
+  const res = await fetch(
+    GAS_URL + "?mode=spot&spot=" + spot
+  );
+
+  const data = await res.json();
+
+  console.log("② data:", data);
+  
+  if(data.length === 0){
+
+    document.getElementById("title")
+      .innerText = "活動が見つかりません";
+
+    return;
+
+  }
+
+  if(!data || data.length === 0){
+
+  document.getElementById("title")
+    .innerText = "活動が見つかりません";
+
+  console.log("❌ data empty");
+
+  return;
+}
+  
+  document.getElementById("title").innerText =
+    "📍 " + data[0].activity;
+
+  // 表示
+  data.forEach(s=>{
+
+    const div = document.createElement("div");
+    div.className = "stamp";
+
+    div.innerHTML = `
+      <img src="${s.image}">
+      <div>
+        <b>${s.name}</b><br>
+        ${s.activity}
+      </div>
+    `;
+
+    document.getElementById("stampArea")
+      .appendChild(div);
+
+  });
+
+  stamps = data;
+
+  const genreRes = await fetch(
+  GAS_URL + "?mode=genres"
+);
+
+allGenres =
+  await genreRes.json();
+
+  // 取得済み確認
+  let userData = [];
+
+try {
+  const userRes = await fetch(
+    GAS_URL + "?mode=user&userId=" + userId
+  );
+  userData = await userRes.json();
+} catch(e) {
+  console.log("ユーザー取得エラー:", e);
+}
+ 
+  const status = document.getElementById("status");
+
+status.innerText = "📖 スタンプ台紙を読み込み中...";
+status.style.display = "block";
+
+await new Promise(r => requestAnimationFrame(()=>{
+  requestAnimationFrame(r);
+}));
+
+await drawStampBook(userData);
+
+status.innerText = "✅ 台紙読み込み完了";
+  
+const allAlready = stamps.every(
+  s => userData.includes(s.id)
+);
+
+const btn = document.getElementById("btn");
+
+if(allAlready){
+  status.innerText = "⚠️ 取得済みです";
+  btn.style.display = "none";
+}else{
+  status.innerText = "取得できます！";
+  btn.style.display = "inline-block";
+  btn.disabled = false;
+}
+
+// ローディング終了
+document.getElementById("loading")
+  .style.display = "none";
+
+document.getElementById("mainCard")
+  .style.display = "block";
+  
+  if(allAlready){
+
+    document.getElementById("status")
+      .innerText = "⚠️ 取得済みです";
+
+  }else{
+
+    document.getElementById("status")
+      .innerText = "取得できます！";
+
+    btn.style.display = "inline-block";
+    btn.disabled = false;
+
+  }
+
+}
+
+async function drawStampBook(userData){
+
+  const canvas =
+    document.getElementById("stampBook");
+
+  const ctx =
+    canvas.getContext("2d");
+
+  ctx.clearRect(
+  0,
+  0,
+  canvas.width,
+  canvas.height
+);
+  
+  // 台紙
+  const base = new Image();
+
+  base.src =
+    "https://kk14universityfifth-debug.github.io/stamp-rally/images/stampbook.png";
+
+  await new Promise(r=>{
+    base.onload = r;
+    base.onerror = r;
+  });
+
+  ctx.drawImage(base,0,0);
+
+  // スタンプ
+  for(const s of allGenres){
+
+    if(userData.includes(s.id)){
+
+      const img = new Image();
+
+      img.src = s.image;
+
+      await new Promise(r=>{
+        img.onload = r;
+      });
+
+      const pos =
+        stampPositions[s.id];
+
+      ctx.drawImage(
+        img,
+        pos[0],
+        pos[1],
+        185,
+        205
+      );
+
+    }
+
+  }
+
+}
+  
+
+  
+async function send(){
+
+  const statusEl =
+  document.getElementById("status");
+
+let dots = 0;
+
+statusEl.innerText = "スタンプ取得中";
+
+const loadingAnim = setInterval(()=>{
+
+  dots = (dots + 1) % 4;
+
+  statusEl.innerText =
+    "スタンプ取得中" + ".".repeat(dots);
+
+}, 400);
+  
+  document.getElementById("btn")
+    .disabled = true;
+
+  document.getElementById("btn")
+    .style.opacity = "0.5";
+  
+  // document.getElementById("status")
+  //   .innerText = "スタンプ取得中...";
+
+  try{
+
+    console.log("fetch前");
+
+    const formData = new URLSearchParams();
+
+    formData.append("userId", userId);
+    formData.append("sub", sub);
+
+    formData.append(
+      "stamps",
+      JSON.stringify(
+        stamps.map(s=>s.id)
+      )
+    );
+
+    // 最新状態で台紙を再描画
+    const latestRes = await fetch(
+      GAS_URL + "?mode=user&userId=" + userId
+    );
+
+    const latestUserData =
+      await latestRes.json();
+
+    // 今回取得するスタンプを追加
+    stamps.forEach(s=>{
+
+      if(!latestUserData.includes(s.id)){
+        latestUserData.push(s.id);
+      }
+
+    });
+
+    // 最新状態で描画
+    await drawStampBook(latestUserData);
+    
+    // canvas → PNG(base64)
+    const canvas =
+      document.getElementById("stampBook");
+
+    const imageData =
+      canvas.toDataURL("image/png");
+
+    // GASへ送信
+    formData.append(
+      "imageData",
+      imageData
+    );
+    
+    const res = await fetch(GAS_URL,{
+      method:"POST",
+      body:formData
+    });
+
+    console.log("fetch後");
+
+    const text = await res.text();
+
+    console.log("response:", text);
+
+    clearInterval(loadingAnim);
+    
+    document.getElementById("status")
+      .innerText = "🎉 スタンプ獲得！";
+
+    // この瞬間にスタンプ押印
+    await drawStampBook(latestUserData);
+
+    document.getElementById("btn")
+      .style.display = "none";
+
+    await new Promise(r=>setTimeout(r,12000));
+    
+    const currentIds =
+  stamps.map(s => s.id);
+
+const userRes = await fetch(
+  GAS_URL + "?mode=user&userId=" + userId
+);
+
+const userData =
+  await userRes.json();
+
+currentIds.forEach(id=>{
+
+  if(!userData.includes(id)){
+    userData.push(id);
+  }
+
+});
+
+await drawStampBook(userData);
+
+    
+  }catch(e){
+
+    console.error("エラー:", e);
+
+    clearInterval(loadingAnim);
+    
+    document.getElementById("status")
+      .innerText = "エラーが発生しました";
+
+  }
+
+}
+  
+  document.getElementById("btn")
+  .onclick = send;
+
+init();
+
+</script>
+
+</body>
+</html>
