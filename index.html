@@ -105,7 +105,7 @@ setInterval(()=>{
 
   
 const LIFF_ID = "2010010965-sP88JhBz";
-const GAS_URL = "https://script.google.com/macros/s/AKfycbzHKAMu-EH4zXBFSzd0CPNjoe5JS5fe7fM3_ZkG05rwBn8YRbAdgTTjXvVB97PqK7yd4g/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbwqG0fUatAZlphYWiahXRU_3g2UjA8mt_Oxyb0iIyuusoy768Am30REjpE0nn5O-_Fm-Q/exec";
 
 let userId = "";
 let spot = "";
@@ -266,7 +266,20 @@ try {
 } catch(e) {
   console.log("ユーザー取得エラー:", e);
 }
- 
+
+  const todayRes = await fetch(
+  GAS_URL
+  + "?mode=today"
+  + "&userId=" + userId
+  + "&spot=" + spot
+);
+
+const todayData =
+  await todayRes.json();
+
+const alreadyToday =
+  todayData.already;
+  
   const status = document.getElementById("status");
 
 status.innerText = "📖 スタンプ台紙を読み込み中...";
@@ -284,9 +297,46 @@ const allAlready = stamps.every(
   s => userData.includes(s.id)
 );
 
+let newGenre = false;
+
+stamps.forEach(s=>{
+
+  if(!userData.includes(s.id)){
+    newGenre = true;
+  }
+
+});
+
+let msg = "";
+
+if(newGenre){
+
+  msg += "✅ 新しいジャンルスタンプ\n";
+
+}else{
+
+  msg += "⚠️ ジャンルは取得済み\n";
+
+}
+
+if(!alreadyToday){
+
+  msg += "✅ 回数スタンプ";
+
+}else{
+
+  msg += "⚠️ 今日の回数スタンプは取得済み";
+
+}
+
+status.innerText = msg;
+  
 const btn = document.getElementById("btn");
 
-if(allAlready){
+if(
+  !newGenre &&
+  alreadyToday
+){
   status.innerText = "⚠️ 取得済みです";
   btn.style.display = "none";
 }else{
@@ -414,7 +464,7 @@ const loadingAnim = setInterval(()=>{
 
     formData.append("userId", userId);
     formData.append("sub", sub);
-
+    formData.append("spot", spot);
     formData.append(
       "stamps",
       JSON.stringify(
