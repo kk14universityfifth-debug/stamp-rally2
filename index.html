@@ -660,12 +660,6 @@ const loadingAnim = setInterval(()=>{
     // この瞬間にスタンプ押印
     await drawGenreBook(latestUserData);
     
-    const countData =
-      await countRes.json();
-    
-    const visitCount =
-      countData.count || 0;
-    
     await drawCountBook(
       visitCount
     );
@@ -695,8 +689,20 @@ currentIds.forEach(id=>{
 
 await drawGenreBook(userData);
 
+const countRes2 = await fetch(
+  GAS_URL
+  + "?mode=count"
+  + "&userId=" + userId
+);
+
+const countData2 =
+  await countRes2.json();
+
+const visitCount2 =
+  countData2.count || 0;
+
 await drawCountBook(
-  userData.length
+  visitCount2
 );
 
     
