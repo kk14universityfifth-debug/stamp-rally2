@@ -65,13 +65,32 @@ font-weight:bold;
 
 <div id="stampArea"></div>
 
-<canvas id="stampBook"
+<!-- 回数スタンプカード -->
+<h3>🎖️ 参加回数スタンプ</h3>
+
+<canvas id="countBook"
 width="1492"
 height="1054"
 style="
 width:100%;
 height:auto;
-margin-top:20px;
+margin-top:10px;
+background:white;
+border-radius:12px;
+"></canvas>
+
+<!-- ジャンルスタンプカード -->
+<h3 style="margin-top:40px;">
+🌈 ジャンルスタンプ
+</h3>
+
+<canvas id="genreBook"
+width="1492"
+height="1054"
+style="
+width:100%;
+height:auto;
+margin-top:10px;
 background:white;
 border-radius:12px;
 "></canvas>
@@ -141,7 +160,21 @@ const stampPositions = {
 
 };
 
+const countPositions = {
 
+  1:[50,260],
+  2:[250,260],
+  3:[450,260],
+  4:[650,260],
+  5:[845,260],
+
+  6:[50,480],
+  7:[250,480],
+  8:[450,480],
+  9:[650,480],
+  10:[845,480]
+
+};
   
 function getParam(name){
   return new URL(location.href).searchParams.get(name);
@@ -289,7 +322,11 @@ await new Promise(r => requestAnimationFrame(()=>{
   requestAnimationFrame(r);
 }));
 
-await drawStampBook(userData);
+await drawGenreBook(userData);
+
+await drawCountBook(
+  userData.length
+);
 
 status.innerText = "✅ 台紙読み込み完了";
   
@@ -368,11 +405,11 @@ document.getElementById("mainCard")
   }
 
 }
-
-async function drawStampBook(userData){
+  
+async function drawGenreBook(userData){
 
   const canvas =
-    document.getElementById("stampBook");
+    document.getElementById("genreBook");;
 
   const ctx =
     canvas.getContext("2d");
@@ -427,7 +464,61 @@ async function drawStampBook(userData){
 
 }
   
+async function drawCountBook(count){
 
+  const canvas =
+    document.getElementById("countBook");
+
+  const ctx =
+    canvas.getContext("2d");
+
+  ctx.clearRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+  // 台紙
+  const base = new Image();
+
+  base.src =
+    "https://kk14universityfifth-debug.github.io/stamp-rally/images/countbook.png";
+
+  await new Promise(r=>{
+    base.onload = r;
+    base.onerror = r;
+  });
+
+  ctx.drawImage(base,0,0);
+
+  // 回数分押す
+  for(let i=1;i<=count;i++){
+
+    const pos = countPositions[i];
+
+    if(!pos) continue;
+
+    const img = new Image();
+
+    img.src =
+      "https://kk14universityfifth-debug.github.io/stamp-rally/images/thankyou.png";
+
+    await new Promise(r=>{
+      img.onload = r;
+    });
+
+    ctx.drawImage(
+      img,
+      pos[0],
+      pos[1],
+      185,
+      205
+    );
+
+  }
+
+}
   
 async function send(){
 
@@ -490,19 +581,34 @@ const loadingAnim = setInterval(()=>{
     });
 
     // 最新状態で描画
-    await drawStampBook(latestUserData);
+    await drawGenreBook(latestUserData);
+
+    await drawCountBook(
+      latestUserData.length
+    );
     
     // canvas → PNG(base64)
-    const canvas =
-      document.getElementById("stampBook");
+    const genreCanvas =
+      document.getElementById("genreBook");
 
-    const imageData =
-      canvas.toDataURL("image/png");
+    const countCanvas =
+      document.getElementById("countBook");
+
+    const genreImage =
+      genreCanvas.toDataURL("image/png");
+
+    const countImage =
+      countCanvas.toDataURL("image/png");
 
     // GASへ送信
     formData.append(
-      "imageData",
-      imageData
+      "genreImage",
+      genreImage
+    );
+
+    formData.append(
+      "countImage",
+      countImage
     );
     
     const res = await fetch(GAS_URL,{
