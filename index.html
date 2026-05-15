@@ -259,25 +259,6 @@ try {
   document.getElementById("title").innerText =
     "📍 " + data[0].activity;
 
-  // 表示
-  data.forEach(s=>{
-
-    const div = document.createElement("div");
-    div.className = "stamp";
-
-    div.innerHTML = `
-      <img src="${s.image}">
-      <div>
-        <b>${s.name}</b><br>
-        ${s.activity}
-      </div>
-    `;
-
-    document.getElementById("stampArea")
-      .appendChild(div);
-
-  });
-
   stamps = data;
 
   const genreRes = await fetch(
@@ -304,6 +285,39 @@ try {
 } catch(e) {
   console.log("ユーザー取得エラー:", e);
 }
+
+  // 表示
+  data.forEach(s=>{
+
+    const already =
+      userData.includes(s.id);
+
+    const div = document.createElement("div");
+
+    div.className = "stamp";
+
+    div.innerHTML = `
+      <img src="${s.image}">
+
+      <div style="text-align:left;">
+
+        <b>${s.name}</b><br>
+
+        ${s.activity}<br>
+
+        ${
+          already
+          ? "⚠️ 取得済み"
+          : "✅ 獲得できます"
+        }
+
+      </div>
+    `;
+
+    document.getElementById("stampArea")
+      .appendChild(div);
+
+  });
 
   const todayRes = await fetch(
   GAS_URL
@@ -363,16 +377,6 @@ stamps.forEach(s=>{
 
 let msg = "";
 
-if(newGenre){
-
-  msg += "✅ 新しいジャンルスタンプ\n";
-
-}else{
-
-  msg += "⚠️ ジャンルは取得済み\n";
-
-}
-
 if(!alreadyToday){
 
   msg += "✅ 回数スタンプ";
@@ -380,6 +384,16 @@ if(!alreadyToday){
 }else{
 
   msg += "⚠️ 今日の回数スタンプは取得済み";
+
+}
+
+if(newGenre){
+
+  msg += "✅ 新しいジャンルスタンプ\n";
+
+}else{
+
+  msg += "⚠️ ジャンルは取得済み\n";
 
 }
 
