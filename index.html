@@ -567,6 +567,8 @@ const loadingAnim = setInterval(()=>{
 
     const formData = new URLSearchParams();
 
+    formData.append("mode","save");
+    
     formData.append("userId", userId);
     formData.append("sub", sub);
     formData.append("spot", spot);
