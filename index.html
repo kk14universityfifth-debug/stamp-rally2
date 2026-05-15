@@ -634,7 +634,11 @@ const loadingAnim = setInterval(()=>{
       .innerText = "🎉 スタンプ獲得！";
 
     // この瞬間にスタンプ押印
-    await drawStampBook(latestUserData);
+    await drawGenreBook(latestUserData);
+
+    await drawCountBook(
+      latestUserData.length
+    );
 
     document.getElementById("btn")
       .style.display = "none";
@@ -659,7 +663,11 @@ currentIds.forEach(id=>{
 
 });
 
-await drawStampBook(userData);
+await drawGenreBook(userData);
+
+await drawCountBook(
+  userData.length
+);
 
     
   }catch(e){
