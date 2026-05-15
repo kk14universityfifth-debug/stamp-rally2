@@ -598,59 +598,38 @@ const loadingAnim = setInterval(()=>{
 
     });
 
-    // 最新状態で描画
-    await drawGenreBook(latestUserData);
-
-    const countRes = await fetch(
+    // まず保存＆LINE送信を実行
+    const res = await fetch(GAS_URL,{
+      method:"POST",
+      body:formData
+    });
+    
+    const text = await res.text();
+    
+    console.log("response:", text);
+    
+    // 保存後に最新回数を取得
+    const latestCountRes = await fetch(
       GAS_URL
       + "?mode=count"
       + "&userId=" + userId
     );
     
-    const countData =
-      await countRes.json();
+    const latestCountData =
+      await latestCountRes.json();
     
-    const visitCount =
-      countData.count || 0;
+    const latestVisitCount =
+      latestCountData.count || 0;
+    
+    // 最新状態で再描画
+    await drawGenreBook(latestUserData);
     
     await drawCountBook(
-      visitCount
-    );
-    
-    // canvas → PNG(base64)
-    const genreCanvas =
-      document.getElementById("genreBook");
-
-    const countCanvas =
-      document.getElementById("countBook");
-
-    const genreImage =
-      genreCanvas.toDataURL("image/png");
-
-    const countImage =
-      countCanvas.toDataURL("image/png");
-
-    // GASへ送信
-    formData.append(
-      "genreImage",
-      genreImage
+      latestVisitCount
     );
 
-    formData.append(
-      "countImage",
-      countImage
-    );
-    
-    const res = await fetch(GAS_URL,{
-      method:"POST",
-      body:formData
-    });
-
-    console.log("fetch後");
-
-    const text = await res.text();
-
-    console.log("response:", text);
+    // const text = await res.text();
+    // console.log("response:", text);
 
     clearInterval(loadingAnim);
     
@@ -661,7 +640,7 @@ const loadingAnim = setInterval(()=>{
     await drawGenreBook(latestUserData);
     
     await drawCountBook(
-      visitCount
+      latestVisitCount
     );
 
     document.getElementById("btn")
