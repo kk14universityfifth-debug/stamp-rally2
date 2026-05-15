@@ -288,6 +288,12 @@ try {
 allGenres =
   await genreRes.json();
 
+console.log("allGenres:", allGenres);
+
+if(!Array.isArray(allGenres)){
+  allGenres = [];
+}
+
   // 取得済み確認
   let userData = [];
 
