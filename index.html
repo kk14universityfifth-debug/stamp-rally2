@@ -391,10 +391,8 @@ if(
   !newGenre &&
   alreadyToday
 ){
-  status.innerText = "⚠️ 取得済みです";
   btn.style.display = "none";
 }else{
-  status.innerText = "取得できます！";
   btn.style.display = "inline-block";
   btn.disabled = false;
 }
@@ -405,21 +403,6 @@ document.getElementById("loading")
 
 document.getElementById("mainCard")
   .style.display = "block";
-  
-  if(allAlready){
-
-    document.getElementById("status")
-      .innerText = "⚠️ 取得済みです";
-
-  }else{
-
-    document.getElementById("status")
-      .innerText = "取得できます！";
-
-    btn.style.display = "inline-block";
-    btn.disabled = false;
-
-  }
 
 }
   
