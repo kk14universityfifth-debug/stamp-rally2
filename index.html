@@ -196,7 +196,6 @@ if(!spot){
 }
 
 console.log("① spot:", spot);
-  console.log("① spot:", spot);
   
   await liff.init({
     liffId: LIFF_ID
@@ -604,6 +603,10 @@ const loadingAnim = setInterval(()=>{
       body:formData
     });
     
+    if(!res.ok){
+      throw new Error("POST失敗");
+    }
+
     const text = await res.text();
     
     console.log("response:", text);
