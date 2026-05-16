@@ -568,7 +568,7 @@ const loadingAnim = setInterval(()=>{
     const formData = new URLSearchParams();
 
     formData.append("mode","save");
-    
+
     formData.append("userId", userId);
     formData.append("sub", sub);
     formData.append("spot", spot);
@@ -629,6 +629,49 @@ const loadingAnim = setInterval(()=>{
     await drawCountBook(
       latestVisitCount
     );
+
+
+    // canvas → 画像化
+const genreCanvas =
+  document.getElementById("genreBook");
+
+const countCanvas =
+  document.getElementById("countBook");
+
+const genreImage =
+  genreCanvas.toDataURL("image/png");
+
+const countImage =
+  countCanvas.toDataURL("image/png");
+
+// LINE送信用データ
+const sendData =
+  new URLSearchParams();
+
+sendData.append("mode","send");
+
+sendData.append("userId", userId);
+
+sendData.append(
+  "genreImage",
+  genreImage
+);
+
+sendData.append(
+  "countImage",
+  countImage
+);
+
+// LINE送信
+const sendRes = await fetch(GAS_URL,{
+  method:"POST",
+  body:sendData
+});
+
+const sendText =
+  await sendRes.text();
+
+console.log("LINE送信:", sendText);
 
     // const text = await res.text();
     // console.log("response:", text);
