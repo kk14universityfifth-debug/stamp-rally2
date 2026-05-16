@@ -510,18 +510,20 @@ async function drawCountBook(count){
     canvas.height
   );
 
-  // 0回対策
-  if(count <= 0){
-    count = 1;
-  }
-
   // 何枚目か
-  const page =
-    Math.floor((count - 1) / 10) + 1;
+  let page = 1;
 
-  // 今のカードのスタンプ数
-  const stampCount =
-    ((count - 1) % 10) + 1;
+  let stampCount = 0;
+
+  if(count > 0){
+
+    page =
+      Math.floor((count - 1) / 10) + 1;
+
+    stampCount =
+      ((count - 1) % 10) + 1;
+
+  }
 
   // 台紙
   const base = new Image();
