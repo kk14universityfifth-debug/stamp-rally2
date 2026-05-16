@@ -451,6 +451,16 @@ async function drawGenreBook(userData){
   canvas.width,
   canvas.height
 );
+
+  // 背景を白にする
+  ctx.fillStyle = "#ffffff";
+
+  ctx.fillRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
   
   // 台紙
   const base = new Image();
