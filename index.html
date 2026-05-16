@@ -497,10 +497,6 @@ async function drawGenreBook(userData){
   
 async function drawCountBook(count){
 
-  if(count <= 0){
-    count = 1;
-  }
-
   const canvas =
     document.getElementById("countBook");
 
@@ -513,6 +509,19 @@ async function drawCountBook(count){
     canvas.width,
     canvas.height
   );
+
+  // 0回対策
+  if(count <= 0){
+    count = 1;
+  }
+
+  // 何枚目か
+  const page =
+    Math.floor((count - 1) / 10) + 1;
+
+  // 今のカードのスタンプ数
+  const stampCount =
+    ((count - 1) % 10) + 1;
 
   // 台紙
   const base = new Image();
@@ -540,13 +549,7 @@ async function drawCountBook(count){
     canvas.height - 60
   );
 
-  const page =
-  Math.floor((count - 1) / 10) + 1;
-
-  const stampCount =
-    ((count - 1) % 10) + 1;
-
-  // 回数分押す
+  // スタンプ描画
   for(let i=1;i<=stampCount;i++){
 
     const pos = countPositions[i];
