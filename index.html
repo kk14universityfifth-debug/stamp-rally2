@@ -653,6 +653,13 @@ sendData.append("mode","send");
 sendData.append("userId", userId);
 
 sendData.append(
+  "stamps",
+  JSON.stringify(
+    stamps.map(s=>s.id)
+  )
+);
+
+sendData.append(
   "genreImage",
   genreImage
 );
