@@ -287,12 +287,39 @@ try {
 }
 
   // 表示
+  // 活動名を1回だけ表示
+  const titleDiv =
+    document.createElement("div");
+
+  titleDiv.innerHTML = `
+    <div style="
+      font-size:20px;
+      font-weight:bold;
+      margin-bottom:20px;
+    ">
+      📍 ${data[0].activity}
+    </div>
+
+    <div style="
+      font-size:14px;
+      color:#666;
+      margin-bottom:10px;
+    ">
+      該当ジャンル
+    </div>
+  `;
+
+  document.getElementById("stampArea")
+    .appendChild(titleDiv);
+
+  // ジャンル一覧
   data.forEach(s=>{
 
     const already =
       userData.includes(s.id);
 
-    const div = document.createElement("div");
+    const div =
+      document.createElement("div");
 
     div.className = "stamp";
 
@@ -301,21 +328,7 @@ try {
 
       <div style="text-align:left;">
 
-        <div>
-      📍 ${s.activity}
-        </div>
-
-        <div style="
-          margin-top:6px;
-          font-size:12px;
-          color:#666;
-        ">
-          該当ジャンル
-        </div>
-
         <b>${s.name}</b><br>
-
-        ${s.activity}<br>
 
         ${
           already
