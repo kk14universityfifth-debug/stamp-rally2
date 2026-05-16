@@ -131,6 +131,8 @@ let spot = "";
 let sub = "";
 let stamps = [];
 let allGenres = [];
+// 画像キャッシュ
+const cachedImages = {};
   
 const stampPositions = {
 
@@ -175,7 +177,28 @@ const countPositions = {
   10:[1220,595]
 
 };
-  
+
+async function loadImage(src){
+
+  if(cachedImages[src]){
+    return cachedImages[src];
+  }
+
+  const img = new Image();
+
+  img.src = src;
+
+  await new Promise(r=>{
+    img.onload = r;
+    img.onerror = r;
+  });
+
+  cachedImages[src] = img;
+
+  return img;
+
+}
+
 function getParam(name){
   return new URL(location.href).searchParams.get(name);
 }
@@ -370,11 +393,11 @@ const countData =
 const visitCount =
   countData.count || 0;
 
-await drawGenreBook(userData);
+// await drawGenreBook(userData);
 
-await drawCountBook(
-  visitCount
-);
+// await drawCountBook(
+//   visitCount
+// );
 
 status.innerText = "✅ 台紙読み込み完了";
   
@@ -453,15 +476,9 @@ async function drawGenreBook(userData){
 );
   
   // 台紙
-  const base = new Image();
-
-  base.src =
-    "https://kk14universityfifth-debug.github.io/stamp-rally2/images/genrebook.png";
-
-  await new Promise(r=>{
-    base.onload = r;
-    base.onerror = r;
-  });
+  const base = await loadImage(
+    "https://kk14universityfifth-debug.github.io/stamp-rally2/images/genrebook.png"
+  );
 
   ctx.drawImage(base,0,0);
 
@@ -470,13 +487,7 @@ async function drawGenreBook(userData){
 
     if(userData.includes(s.id)){
 
-      const img = new Image();
-
-      img.src = s.image;
-
-      await new Promise(r=>{
-        img.onload = r;
-      });
+      const img = await loadImage(s.image);
 
       const pos =
         stampPositions[s.id];
@@ -526,15 +537,9 @@ async function drawCountBook(count){
   }
 
   // 台紙
-  const base = new Image();
-
-  base.src =
-    "https://kk14universityfifth-debug.github.io/stamp-rally2/images/countbook.png";
-
-  await new Promise(r=>{
-    base.onload = r;
-    base.onerror = r;
-  });
+  const base = await loadImage(
+    "https://kk14universityfifth-debug.github.io/stamp-rally2/images/countbook.png"
+  );
 
   ctx.drawImage(base,0,0);
 
@@ -558,14 +563,9 @@ async function drawCountBook(count){
 
     if(!pos) continue;
 
-    const img = new Image();
-
-    img.src =
-      "https://kk14universityfifth-debug.github.io/stamp-rally2/images/thankyou.png";
-
-    await new Promise(r=>{
-      img.onload = r;
-    });
+    const img = await loadImage(
+      "https://kk14universityfifth-debug.github.io/stamp-rally2/images/thankyou.png"
+    );
 
     ctx.drawImage(
       img,
@@ -669,11 +669,11 @@ const loadingAnim = setInterval(()=>{
       latestCountData.count || 0;
     
     // 最新状態で再描画
-    await drawGenreBook(latestUserData);
+    // await drawGenreBook(latestUserData);
     
-    await drawCountBook(
-      latestVisitCount
-    );
+    // await drawCountBook(
+    //   latestVisitCount
+    // );
 
 
     // canvas → 画像化
@@ -684,10 +684,16 @@ const countCanvas =
   document.getElementById("countBook");
 
 const genreImage =
-  genreCanvas.toDataURL("image/png");
+  genreCanvas.toDataURL(
+    "image/jpeg",
+    0.7
+  );
 
 const countImage =
-  countCanvas.toDataURL("image/png");
+  countCanvas.toDataURL(
+    "image/jpeg",
+    0.7
+  );
 
 // LINE送信用データ
 const sendData =
@@ -736,52 +742,52 @@ console.log("LINE送信:", sendText);
       .innerText = "🎉 スタンプ獲得！";
 
     // この瞬間にスタンプ押印
-    await drawGenreBook(latestUserData);
+    // await drawGenreBook(latestUserData);
     
-    await drawCountBook(
-      latestVisitCount
-    );
+    // await drawCountBook(
+    //   latestVisitCount
+    // );
 
     document.getElementById("btn")
       .style.display = "none";
 
-    await new Promise(r=>setTimeout(r,12000));
+    // await new Promise(r=>setTimeout(r,12000));
     
-    const currentIds =
-  stamps.map(s => s.id);
+//     const currentIds =
+//   stamps.map(s => s.id);
 
-const userRes = await fetch(
-  GAS_URL + "?mode=user&userId=" + userId
-);
+// const userRes = await fetch(
+//   GAS_URL + "?mode=user&userId=" + userId
+// );
 
-const userData =
-  await userRes.json();
+// const userData =
+//   await userRes.json();
 
-currentIds.forEach(id=>{
+// currentIds.forEach(id=>{
 
-  if(!userData.includes(id)){
-    userData.push(id);
-  }
+//   if(!userData.includes(id)){
+//     userData.push(id);
+//   }
 
-});
+// });
 
-await drawGenreBook(userData);
+// await drawGenreBook(userData);
 
-const countRes2 = await fetch(
-  GAS_URL
-  + "?mode=count"
-  + "&userId=" + userId
-);
+// const countRes2 = await fetch(
+//   GAS_URL
+//   + "?mode=count"
+//   + "&userId=" + userId
+// );
 
-const countData2 =
-  await countRes2.json();
+// const countData2 =
+//   await countRes2.json();
 
-const visitCount2 =
-  countData2.count || 0;
+// const visitCount2 =
+//   countData2.count || 0;
 
-await drawCountBook(
-  visitCount2
-);
+// await drawCountBook(
+//   visitCount2
+// );
 
     
   }catch(e){
