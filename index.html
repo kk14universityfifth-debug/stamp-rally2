@@ -132,6 +132,36 @@
       "></canvas>
 
       <p id="status"></p>
+      <div id="sendProgressWrap" style="
+      display:none;
+      width:100%;
+      max-width:300px;
+      margin:15px auto;
+      ">
+
+        <div style="
+          width:100%;
+          height:18px;
+          background:#ddd;
+          border-radius:10px;
+          overflow:hidden;
+        ">
+
+          <div id="sendProgressBar" style="
+            width:0%;
+            height:100%;
+            background:#06C755;
+            transition:0.3s;
+          "></div>
+
+        </div>
+
+        <div id="sendProgressText"
+        style="margin-top:8px;">
+          0%
+        </div>
+
+      </div>
 
       <button id="btn" disabled style="display:none;">
         スタンプを取得！
@@ -244,6 +274,24 @@
         .innerText =
           percent + "%" +
           (text ? " ・" + text : "");
+
+    }
+
+    function setSendProgress(percent,text=""){
+
+      document.getElementById(
+        "sendProgressWrap"
+      ).style.display = "block";
+
+      document.getElementById(
+        "sendProgressBar"
+      ).style.width = percent + "%";
+
+      document.getElementById(
+        "sendProgressText"
+      ).innerText =
+        percent + "%" +
+        (text ? " ・" + text : "");
 
     }
 
@@ -666,6 +714,8 @@
 
         statusEl.innerText = "スタンプ取得中";
 
+        setSendProgress(10,"スタンプ取得中");
+
       const loadingAnim = setInterval(()=>{
 
         dots = (dots + 1) % 4;
@@ -732,6 +782,8 @@
         const text = await res.text();
         
         console.log("response:", text);
+
+        setSendProgress(40,"スタンプ取得中");
         
         // 保存後に最新回数を取得
         const latestCountRes = await fetch(
@@ -745,6 +797,8 @@
         
         const latestVisitCount =
           latestCountData.count || 0;
+
+        setSendProgress(60,"スタンプ取得中");
         
         // 最新状態で再描画
         await drawGenreBook(latestUserData);
@@ -802,6 +856,8 @@
           countImage
         );
 
+        setSendProgress(80,"スタンプ取得中");
+
         // LINE送信
         fetch(GAS_URL,{
           method:"POST",
@@ -820,6 +876,14 @@
         // console.log("response:", text);
 
         clearInterval(loadingAnim);
+
+        // 100%
+        setSendProgress(100,"完了");
+
+        // 少し見せる
+        await new Promise(r=>
+          setTimeout(r,400)
+        );
             
         document.getElementById("status")
            .innerText = "🎉 スタンプ獲得！";
@@ -833,6 +897,10 @@
 
         document.getElementById("btn")
           .style.display = "none";
+
+        document.getElementById(
+          "sendProgressWrap"
+        ).style.display = "none";
             
       }catch(e){
 
