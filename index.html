@@ -277,21 +277,13 @@
 
     }
 
-    function setSendProgress(percent,text=""){
+    function setSendProgress(percent,text){
 
-      document.getElementById(
-        "sendProgressWrap"
-      ).style.display = "block";
+      document.getElementById("sendBar")
+        .style.width = percent + "%";
 
-      document.getElementById(
-        "sendProgressBar"
-      ).style.width = percent + "%";
-
-      // document.getElementById(
-      //   "sendProgressText"
-      // ).innerText =
-      //   percent + "%" +
-      //   (text ? " ・" + text : "");
+      document.getElementById("sendText")
+        .innerText = percent + "%";
 
     }
 
