@@ -737,15 +737,12 @@ sendData.append(
 );
 
 // LINE送信
-const sendRes = await fetch(GAS_URL,{
+fetch(GAS_URL,{
   method:"POST",
   body:sendData
-});
-
-const sendText =
-  await sendRes.text();
-
-console.log("LINE送信:", sendText);
+})
+.then(r=>r.text())
+.then(t=>console.log("LINE送信:", t));
 
 // 画面表示用に戻す
 await drawCountBook(
