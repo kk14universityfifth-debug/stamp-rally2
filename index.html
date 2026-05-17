@@ -154,8 +154,7 @@
 
       <div id="sendText"
       style="
-      margin-top:6px;
-      font-size:14px;
+      display:none;
       ">
       0%
       </div>
@@ -707,6 +706,10 @@
           "sendProgressWrap"
         ).style.display = "block";
 
+        document.getElementById(
+          "sendText"
+        ).style.display = "block";
+
         setSendProgress(10,"スタンプ取得中");
 
       const loadingAnim = setInterval(()=>{
@@ -893,6 +896,10 @@
 
         document.getElementById(
           "sendProgressWrap"
+        ).style.display = "none";
+
+        document.getElementById(
+          "sendText"
         ).style.display = "none";
             
       }catch(e){
