@@ -710,7 +710,7 @@
           "sendText"
         ).style.display = "block";
 
-        setSendProgress(10,"スタンプ取得中");
+        setSendProgress(0,"スタンプ取得中");
 
       const loadingAnim = setInterval(()=>{
 
@@ -779,7 +779,7 @@
         
         console.log("response:", text);
 
-        setSendProgress(40,"スタンプ取得中");
+        setSendProgress(25,"スタンプ取得中");
         
         // 保存後に最新回数を取得
         const latestCountRes = await fetch(
@@ -794,7 +794,7 @@
         const latestVisitCount =
           latestCountData.count || 0;
 
-        setSendProgress(60,"スタンプ取得中");
+        setSendProgress(50,"スタンプ取得中");
         
         // 最新状態で再描画
         await drawGenreBook(latestUserData);
@@ -852,7 +852,7 @@
           countImage
         );
 
-        setSendProgress(80,"スタンプ取得中");
+        setSendProgress(75,"スタンプ取得中");
 
         // LINE送信
         fetch(GAS_URL,{
