@@ -506,7 +506,10 @@ async function drawGenreBook(userData){
 
 }
   
-async function drawCountBook(count){
+async function drawCountBook(
+  count,
+  showPage = true
+){
 
   const canvas =
     document.getElementById("countBook");
@@ -544,17 +547,21 @@ async function drawCountBook(count){
   ctx.drawImage(base,0,0);
 
   // 〇枚目表示
-  ctx.font = "bold 60px sans-serif";
+  if(showPage){
 
-  ctx.fillStyle = "#333";
+    ctx.font = "bold 60px sans-serif";
 
-  ctx.textAlign = "left";
+    ctx.fillStyle = "#333";
 
-  ctx.fillText(
-    page + "枚目",
-    1250,
-    1120
-  );
+    ctx.textAlign = "left";
+
+    ctx.fillText(
+      page + "枚目",
+      1250,
+      1120
+    );
+
+  }
 
   // スタンプ描画
   for(let i=1;i<=stampCount;i++){
@@ -670,9 +677,11 @@ const loadingAnim = setInterval(()=>{
     
     // 最新状態で再描画
     await drawGenreBook(latestUserData);
-    
+
+    // LINE送信用は〇枚目なし
     await drawCountBook(
-      latestVisitCount
+      latestVisitCount,
+      false
     );
 
 
@@ -732,6 +741,12 @@ const sendText =
   await sendRes.text();
 
 console.log("LINE送信:", sendText);
+
+// 画面表示用に戻す
+await drawCountBook(
+  latestVisitCount,
+  true
+);
 
     // const text = await res.text();
     // console.log("response:", text);
