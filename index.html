@@ -513,10 +513,13 @@
       }
 
       // ローディング終了
+      setProgress(100,"完了");
+
+      // 100%を少し見せる
+      await new Promise(r=>setTimeout(r,500));
+
       document.getElementById("loading")
         .style.display = "none";
-
-      setProgress(100,"完了");
 
       document.getElementById("mainCard")
         .style.display = "block";
