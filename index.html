@@ -50,12 +50,42 @@ button{
 </head>
 
 <body>
+
 <div id="loading" style="
 padding-top:120px;
 font-size:24px;
 font-weight:bold;
+text-align:center;
 ">
-読み込み中<span id="dots">.</span>
+
+  <div>
+    読み込み中<span id="dots">.</span>
+  </div>
+
+  <!-- バー -->
+  <div style="
+    width:300px;
+    height:20px;
+    background:#ddd;
+    border-radius:10px;
+    margin:20px auto;
+    overflow:hidden;
+  ">
+
+    <div id="progressBar" style="
+      width:0%;
+      height:100%;
+      background:#06C755;
+      transition:0.3s;
+    "></div>
+
+  </div>
+
+  <!-- % -->
+  <div id="progressText">
+    0%
+  </div>
+
 </div>
   
 <!-- <div class="card"> -->
@@ -199,6 +229,18 @@ async function loadImage(src){
 
 }
 
+function setProgress(percent, text=""){
+
+  document.getElementById("progressBar")
+    .style.width = percent + "%";
+
+  document.getElementById("progressText")
+    .innerText =
+      percent + "%" +
+      (text ? " ・" + text : "");
+
+}
+
 function getParam(name){
   return new URL(location.href).searchParams.get(name);
 }
@@ -219,10 +261,12 @@ if(!spot){
 }
 
 console.log("① spot:", spot);
-  
+
   await liff.init({
-    liffId: LIFF_ID
-  });
+  liffId: LIFF_ID
+});
+
+setProgress(10,"LINEログイン");
 
   if(!liff.isLoggedIn()){
     liff.login();
@@ -258,6 +302,8 @@ try {
 
   const data = await res.json();
 
+  setProgress(25,"活動情報取得");
+
   console.log("② data:", data);
   
   if(data.length === 0){
@@ -291,6 +337,8 @@ try {
 allGenres =
   await genreRes.json();
 
+setProgress(40,"ボランティアジャンル情報取得");
+
 console.log("allGenres:", allGenres);
 
 if(!Array.isArray(allGenres)){
@@ -305,6 +353,9 @@ try {
     GAS_URL + "?mode=user&userId=" + userId
   );
   userData = await userRes.json();
+
+  setProgress(55,"ユーザー情報取得");
+
 } catch(e) {
   console.log("ユーザー取得エラー:", e);
 }
@@ -393,11 +444,15 @@ const countData =
 const visitCount =
   countData.count || 0;
 
+setProgress(70,"参加回数取得");
+
 await drawGenreBook(userData);
 
 await drawCountBook(
   visitCount
 );
+
+setProgress(95,"現在のスタンプカード取得");
 
 status.innerText = "✅ 台紙読み込み完了";
   
@@ -454,6 +509,8 @@ if(
 // ローディング終了
 document.getElementById("loading")
   .style.display = "none";
+
+setProgress(100,"完了");
 
 document.getElementById("mainCard")
   .style.display = "block";
