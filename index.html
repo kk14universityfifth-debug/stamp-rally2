@@ -356,6 +356,52 @@
         return;
       }
 
+      const friendship = await liff.getFriendship();
+
+      alert(
+        "friendFlag = " +
+        friendship.friendFlag
+      );
+      
+      if(!friendship.friendFlag){
+
+        document.body.innerHTML = `
+          <div style="
+            padding:40px;
+            text-align:center;
+            font-family:sans-serif;
+          ">
+
+            <h2>まずは友だち追加してください</h2>
+
+            <p>
+              スタンプラリー参加には<br>
+              LINE友だち登録が必要です
+            </p>
+
+            <a
+              href="https://lin.ee/w3gYAY3"
+              target="_blank"
+              style="
+                display:inline-block;
+                margin-top:20px;
+                padding:15px 30px;
+                background:#06C755;
+                color:white;
+                border-radius:12px;
+                text-decoration:none;
+                font-weight:bold;
+              "
+            >
+              友だち追加する
+            </a>
+
+          </div>
+        `;
+
+        return;
+      }
+
       // 👇ここ追加
       const profile = await liff.getProfile();
       userId = profile.userId;
