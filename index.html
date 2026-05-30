@@ -358,6 +358,10 @@
 
       const friendship = await liff.getFriendship();
 
+      console.log("friendship:", friendship);
+      console.log("friendFlag:", friendship.friendFlag);
+
+
       if(!friendship.friendFlag){
 
         document.body.innerHTML = `
